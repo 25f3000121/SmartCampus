@@ -249,8 +249,15 @@ async function superDashboard() {
 }
 
 function renderRows(columns, rows) {
-  if (!rows?.length) return `<tr><td colspan="${columns.length}" class="empty">No records found.</td></tr>`;
-  return rows.map(r=>`<tr>${columns.map(c=>`<td>${c(r)}</td>`).join("")}</tr>`).join("");
+  const columnCount = Array.isArray(columns) ? columns.length : (rows?.[0]?.length || 0);
+  if (!rows?.length) return `<tr><td colspan="${columnCount}" class="empty">No records found.</td></tr>`;
+  return rows.map(row => {
+    const cells = Array.isArray(row) ? row : [row];
+    return `<tr>${cells.map(cell => {
+      const value = typeof cell === "function" ? cell(row) : cell;
+      return `<td>${value ?? ""}</td>`;
+    }).join("")}</tr>`;
+  }).join("");
 }
 function tableCard(title, head, rows) { return `<section class="section"><div class="section-title"><h2>${esc(title)}</h2></div><div class="card table-wrap"><table><thead><tr>${head.map(x=>`<th>${esc(x)}</th>`).join("")}</tr></thead><tbody>${rows}</tbody></table></div></section>`; }
 
